@@ -83,7 +83,7 @@ public class QuestionTypes {
     @Override
     public void displayFormat() {
       System.out.println("[Múltiple Respuesta] (Separar por comas, ej: Java,C++) " + text);
-      options.forEach(o -> System.out.println("  [ ] " + o));
+      options.forEach(o -> System.out.println("  * " + o));
     }
   }
 }
