@@ -22,8 +22,18 @@ public class ConsoleUI {
   }
 
   public void start() {
-    System.out.println("=== SISTEMA DE EVALUACIÓN (DDD & CLEAN ARCHITECTURE) ===");
-    System.out.print("Ingrese su ID de estudiante: ");
+    String ansiCyan = "\u001B[36m";
+    String ansiGreen = "\u001B[32m";
+    String ansiReset = "\u001B[0m";
+    String ansiYellow = "\u001B[33m";
+
+    System.out.println(ansiCyan + "╔═══════════════════════════════════════════════════════╗" + ansiReset);
+    System.out.println(ansiCyan + "║         UNIVERSIDAD - SISTEMA DE EVALUACIÓN           ║" + ansiReset);
+    System.out.println(ansiCyan + "║            (DDD & CLEAN ARCHITECTURE)                 ║" + ansiReset);
+    System.out.println(ansiCyan + "╚═══════════════════════════════════════════════════════╝" + ansiReset);
+    System.out.println(ansiGreen + "¡Bienvenido a la plataforma de exámenes institucionales!" + ansiReset);
+
+    System.out.print("\nIngrese su ID de estudiante: ");
     StudentId studentId = new StudentId(scanner.nextLine());
 
     try {
@@ -47,6 +57,8 @@ public class ConsoleUI {
       System.out.println("Puntuación Final: " + resultado.puntaje() + " / " + resultado.total());
       double porcentaje = ((double) resultado.puntaje() / resultado.total()) * 100;
       System.out.println("Porcentaje de acierto: " + porcentaje + "%");
+
+      System.out.println(ansiYellow + "\n¡Gracias por utilizar nuestra plataforma de evaluación! Le deseamos mucho éxito." + ansiReset);
 
     } catch (IllegalStateException | IllegalArgumentException e) {
       System.out.println("\n[ERROR]: " + e.getMessage());
