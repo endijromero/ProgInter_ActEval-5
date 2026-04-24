@@ -21,8 +21,30 @@ Desde la raíz del proyecto, ejecute los siguientes comandos:
 find . -name "*.java" > sources.txt
 javac -d bin @sources.txt
 
-# Ejecutar la aplicación
+# Ejecutar la aplicación (Modo Consola)
 java -cp bin com.exam.Main
+```
+
+### Ejecución con Interfaz Gráfica (Swing)
+Para ejecutar la versión que posee botones y ventanas gráficas (Swing), existen dos alternativas:
+
+**Opción 1: Mediante comando (Recomendado)**
+Puede ejecutar directamente la clase `MainSwing` ya configurada para este fin:
+```bash
+java -cp bin com.exam.MainSwing
+```
+
+**Opción 2: Cambios en el código (`Main.java`)**
+En caso de querer iniciar desde la clase principal `Main.java`, localice y reemplace el bloque de instanciación de la presentación en dicho archivo de la siguiente manera:
+
+```java
+    // Comente o elimine estas líneas referentes a la consola:
+    // ConsoleUI ui = new ConsoleUI(appService);
+    // ui.start();
+
+    // Descomente o agregue las líneas referentes a Swing:
+    com.exam.presentation.SwingUI ui = new com.exam.presentation.SwingUI(appService);
+    ui.start();
 ```
 
 ---
