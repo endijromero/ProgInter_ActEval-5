@@ -34,6 +34,11 @@ public class CsvQuestionBankRepository implements QuestionBankRepository {
         if (lineNum == 1)
           continue; // Saltar cabecera
 
+        String trimmedLine = line.trim();
+        if (trimmedLine.isEmpty() || trimmedLine.replace(";", "").replace(",", "").trim().isEmpty()) {
+          continue; // Ignorar líneas vacías o sin texto útil
+        }
+
         try {
           questions.add(parseQuestion(line, lineNum));
         } catch (Exception e) {
