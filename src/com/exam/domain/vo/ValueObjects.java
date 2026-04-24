@@ -12,6 +12,11 @@ public class ValueObjects {
                 throw new IllegalArgumentException("El ID del estudiante no puede estar vacío.");
             }
         }
+
+        @Override
+        public String toString() {
+            return "[Estudiante-ID: " + value + "]";
+        }
     }
 
     public record QuestionId(String value) {
