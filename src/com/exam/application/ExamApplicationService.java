@@ -38,6 +38,9 @@ public class ExamApplicationService {
     if (questions.isEmpty()) {
       throw new IllegalStateException("El banco de preguntas está vacío.");
     }
+    if (questions.size() > 50) {
+      throw new IllegalStateException("El banco de preguntas excede el límite máximo permitido");
+    }
 
     ExamAttempt attempt = new ExamAttempt(studentId, questions);
     attemptRepo.save(attempt); // Persiste el inicio
