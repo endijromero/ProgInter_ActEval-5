@@ -46,8 +46,15 @@ public class ConsoleUI {
         System.out.println("\nPregunta " + count++ + " de " + attempt.questions().size());
         q.displayFormat();
 
-        System.out.print("Su respuesta: ");
-        AnswerText answer = new AnswerText(scanner.nextLine());
+        AnswerText answer = null;
+        while (answer == null) {
+          System.out.print("Su respuesta: ");
+          try {
+            answer = new AnswerText(scanner.nextLine());
+          } catch (IllegalArgumentException e) {
+            System.out.println(ansiRed + "[ERROR]: " + e.getMessage() + ansiReset);
+          }
+        }
 
         service.responderPregunta(studentId, q.getId(), answer);
       }

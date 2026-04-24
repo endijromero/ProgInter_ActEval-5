@@ -23,6 +23,11 @@ public class ValueObjects {
     }
 
     public record AnswerText(String value) {
+        public AnswerText {
+            if (value == null || value.isBlank()) {
+                throw new IllegalArgumentException("La respuesta no puede estar vacía");
+            }
+        }
     }
 
     public record Calificacion(int puntaje, int total) {
