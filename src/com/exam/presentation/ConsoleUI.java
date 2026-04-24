@@ -24,6 +24,7 @@ public class ConsoleUI {
   public void start() {
     String ansiCyan = "\u001B[36m";
     String ansiGreen = "\u001B[32m";
+    String ansiRed = "\u001B[31m";
     String ansiReset = "\u001B[0m";
     String ansiYellow = "\u001B[33m";
 
@@ -57,6 +58,12 @@ public class ConsoleUI {
       System.out.println("Puntuación Final: " + resultado.puntaje() + " / " + resultado.total());
       double porcentaje = ((double) resultado.puntaje() / resultado.total()) * 100;
       System.out.println("Porcentaje de acierto: " + porcentaje + "%");
+
+      if (porcentaje >= 60.0) {
+        System.out.println(ansiGreen + "Estado: APROBADO" + ansiReset);
+      } else {
+        System.out.println(ansiRed + "Estado: REPROBADO" + ansiReset);
+      }
 
       System.out.println(ansiYellow + "\n¡Gracias por utilizar nuestra plataforma de evaluación! Le deseamos mucho éxito." + ansiReset);
 
