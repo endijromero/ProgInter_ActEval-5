@@ -37,6 +37,17 @@ public class ExamApplicationService {
   public ExamAttemptDTO iniciarExamen(StudentId studentId) {
     attemptManager.verificarIntentoActivo(studentId);
 
+    // Revisar si existe un intento pausado para este estudiante
+    java.util.Optional<ExamAttempt> activeOpt = attemptRepo.findActiveByStudent(studentId);
+    if (activeOpt.isPresent()) {
+      ExamAttempt active = activeOpt.get();
+      if (active.isPaused()) {
+        active.setPaused(false);
+        attemptRepo.save(active);
+        return new ExamAttemptDTO(studentId, active.getQuestions(), active.getAnswers());
+      }
+    }
+
     List<Question> questions = questionRepo.findAll();
     if (questions.isEmpty()) {
       throw new IllegalStateException("El banco de preguntas está vacío.");
@@ -48,7 +59,15 @@ public class ExamApplicationService {
     ExamAttempt attempt = new ExamAttempt(studentId, questions);
     attemptRepo.save(attempt); // Persiste el inicio
 
-    return new ExamAttemptDTO(studentId, questions);
+    return new ExamAttemptDTO(studentId, questions, attempt.getAnswers());
+  }
+
+  public void pausarExamen(StudentId studentId) {
+    ExamAttempt attempt = attemptRepo.findActiveByStudent(studentId)
+        .orElseThrow(() -> new IllegalStateException("No se encontró intento activo."));
+
+    attempt.setPaused(true);
+    attemptRepo.save(attempt);
   }
 
   public void responderPregunta(StudentId studentId, QuestionId qId, AnswerText answer) {

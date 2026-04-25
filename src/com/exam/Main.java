@@ -6,7 +6,7 @@ import com.exam.domain.repository.Repositories.QuestionBankRepository;
 import com.exam.domain.service.AttemptManager;
 import com.exam.domain.service.GradingService;
 import com.exam.infrastructure.CsvQuestionBankRepository;
-import com.exam.infrastructure.InMemoryExamAttemptRepository;
+import com.exam.infrastructure.FileExamAttemptRepository;
 import com.exam.presentation.ConsoleUI;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class Main {
 
     // 1. Instanciación de Infraestructura y Repositorios
     QuestionBankRepository questionRepo = new CsvQuestionBankRepository(csvPath);
-    ExamAttemptRepository attemptRepo = new InMemoryExamAttemptRepository();
+    ExamAttemptRepository attemptRepo = new FileExamAttemptRepository(questionRepo);
 
     // 2. Instanciación de Servicios de Dominio
     AttemptManager attemptManager = new AttemptManager(attemptRepo);

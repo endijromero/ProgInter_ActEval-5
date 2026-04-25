@@ -17,7 +17,7 @@ public class AttemptManager {
 
     public void verificarIntentoActivo(StudentId studentId) {
         Optional<ExamAttempt> active = repository.findActiveByStudent(studentId);
-        if (active.isPresent()) {
+        if (active.isPresent() && !active.get().isPaused()) {
             throw new IllegalStateException("El estudiante ya posee un intento activo en curso.");
         }
     }

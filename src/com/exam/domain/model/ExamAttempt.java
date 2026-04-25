@@ -16,6 +16,7 @@ public class ExamAttempt {
   private final List<Question> questions;
   private final Map<QuestionId, AnswerText> answers;
   private boolean isFinished;
+  private boolean isPaused;
   private Calificacion result;
 
   public ExamAttempt(StudentId studentId, List<Question> questions) {
@@ -23,6 +24,7 @@ public class ExamAttempt {
     this.questions = questions;
     this.answers = new HashMap<>();
     this.isFinished = false;
+    this.isPaused = false;
   }
 
   public void responder(QuestionId qId, AnswerText answer) {
@@ -33,11 +35,20 @@ public class ExamAttempt {
 
   public void finalizar(Calificacion calificacion) {
     this.isFinished = true;
+    this.isPaused = false;
     this.result = calificacion;
   }
 
   public boolean estaFinalizado() {
     return isFinished;
+  }
+
+  public void setPaused(boolean paused) {
+    this.isPaused = paused;
+  }
+
+  public boolean isPaused() {
+    return isPaused;
   }
 
   public StudentId getStudentId() {

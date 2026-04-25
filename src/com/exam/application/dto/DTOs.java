@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class DTOs {
 
-    public record ExamAttemptDTO(StudentId studentId, List<Question> questions) {
+    public record ExamAttemptDTO(StudentId studentId, List<Question> questions, java.util.Map<com.exam.domain.vo.ValueObjects.QuestionId, com.exam.domain.vo.ValueObjects.AnswerText> answers) {
     }
 
     public record CalificacionDTO(int puntaje, int total) {

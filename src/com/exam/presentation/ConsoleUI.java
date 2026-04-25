@@ -44,14 +44,27 @@ public class ConsoleUI {
 
       int count = 1;
       for (Question q : attempt.questions()) {
+        if (attempt.answers() != null && attempt.answers().containsKey(q.getId())) {
+          count++;
+          continue; // Saltar pregunta ya respondida
+        }
+
         System.out.println("\nPregunta " + count++ + " de " + attempt.questions().size());
         q.displayFormat();
 
         AnswerText answer = null;
         while (answer == null) {
-          System.out.print("Su respuesta: ");
+          System.out.print("Su respuesta (escriba PAUSAR para detener): ");
+          String input = scanner.nextLine().trim();
+
+          if ("PAUSAR".equalsIgnoreCase(input)) {
+            service.pausarExamen(studentId);
+            System.out.println(ansiYellow + "\nExamen pausado con éxito. Puede retomar su intento ingresando de nuevo su ID de estudiante." + ansiReset);
+            return; // Termina la ejecución de start()
+          }
+
           try {
-            answer = new AnswerText(scanner.nextLine());
+            answer = new AnswerText(input);
           } catch (IllegalArgumentException e) {
             System.out.println(ansiRed + "[ERROR]: " + e.getMessage() + ansiReset);
           }
