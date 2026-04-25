@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Main.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.exam</a> &gt; <span class="el_source">Main.java</span></div><h1>Main.java</h1><pre class="source lang-java linenums">package com.exam;
+
+import com.exam.application.ExamApplicationService;
+import com.exam.domain.repository.Repositories.ExamAttemptRepository;
+import com.exam.domain.repository.Repositories.QuestionBankRepository;
+import com.exam.domain.service.AttemptManager;
+import com.exam.domain.service.GradingService;
+import com.exam.infrastructure.CsvQuestionBankRepository;
+import com.exam.infrastructure.FileExamAttemptRepository;
+import com.exam.presentation.ConsoleUI;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+/**
+ * Configuración de inyección de dependencias y punto de entrada principal
+ * (Martin, 2017).
+ */
+<span class="nc" id="L19">public class Main {</span>
+
+  public static void main(String[] args) {
+<span class="nc" id="L22">    String csvPath = &quot;banco_preguntas_test.csv&quot;;</span>
+<span class="nc" id="L23">    generarCsvDePrueba(csvPath);</span>
+
+    // 1. Instanciación de Infraestructura y Repositorios
+<span class="nc" id="L26">    QuestionBankRepository questionRepo = new CsvQuestionBankRepository(csvPath);</span>
+<span class="nc" id="L27">    ExamAttemptRepository attemptRepo = new FileExamAttemptRepository(questionRepo);</span>
+
+    // 2. Instanciación de Servicios de Dominio
+<span class="nc" id="L30">    AttemptManager attemptManager = new AttemptManager(attemptRepo);</span>
+<span class="nc" id="L31">    GradingService gradingService = new GradingService();</span>
+<span class="nc" id="L32">    com.exam.domain.service.ExportService exportService = new com.exam.infrastructure.TxtExportService(&quot;calificaciones.txt&quot;);</span>
+
+    // 3. Instanciación de la Capa de Aplicación
+<span class="nc" id="L35">    ExamApplicationService appService = new ExamApplicationService(</span>
+        questionRepo, attemptRepo, attemptManager, gradingService, exportService);
+<span class="nc" id="L37">    com.exam.application.StatsApplicationService statsService = new com.exam.application.StatsApplicationService(</span>
+        attemptRepo, gradingService);
+
+    // 4. Instanciación e inicio de la Presentación
+<span class="nc" id="L41">    ConsoleUI ui = new ConsoleUI(appService, statsService);</span>
+<span class="nc" id="L42">    ui.start();</span>
+<span class="nc" id="L43">  }</span>
+
+  private static void generarCsvDePrueba(String path) {
+<span class="nc" id="L46">    try (PrintWriter writer = new PrintWriter(new FileWriter(path))) {</span>
+<span class="nc" id="L47">      writer.println(&quot;TIPO;ENUNCIADO;OPCIONES;RESPUESTAS_CORRECTAS&quot;);</span>
+<span class="nc" id="L48">      writer.println(&quot;SC;¿Cuál es la capital de Colombia?;Bogotá,Lima,Quito;Bogotá&quot;);</span>
+<span class="nc" id="L49">      writer.println(&quot;TF;Java es un lenguaje de programación orientado a objetos;;V&quot;);</span>
+<span class="nc" id="L50">      writer.println(</span>
+          &quot;FB;El principio SOLID que dicta que una clase debe tener una sola razón para cambiar es el principio de _______;;responsabilidad unica&quot;);
+<span class="nc" id="L52">      writer.println(</span>
+          &quot;MC;¿Cuáles son lenguajes de programación tipados estáticamente?;Java,Python,C++,JavaScript;Java,C++&quot;);
+<span class="nc" id="L54">      writer.println(&quot;INVALIDO;Esta fila debe fallar para probar el manejo de errores;;&quot;);</span>
+<span class="nc" id="L55">    } catch (IOException e) {</span>
+<span class="nc" id="L56">      System.err.println(&quot;Error al crear el CSV de prueba: &quot; + e.getMessage());</span>
+<span class="nc" id="L57">    }</span>
+<span class="nc" id="L58">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

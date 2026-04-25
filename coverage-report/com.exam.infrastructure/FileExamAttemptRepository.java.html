@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileExamAttemptRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.exam.infrastructure</a> &gt; <span class="el_source">FileExamAttemptRepository.java</span></div><h1>FileExamAttemptRepository.java</h1><pre class="source lang-java linenums">package com.exam.infrastructure;
+
+import com.exam.domain.model.ExamAttempt;
+import com.exam.domain.model.Question;
+import com.exam.domain.repository.Repositories.ExamAttemptRepository;
+import com.exam.domain.repository.Repositories.QuestionBankRepository;
+import com.exam.domain.vo.ValueObjects.AnswerText;
+import com.exam.domain.vo.ValueObjects.QuestionId;
+import com.exam.domain.vo.ValueObjects.StudentId;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * Repositorio de intentos que guarda el estado en un archivo temporal
+ * para poder recuperar exámenes pausados (HU13) y en memoria (HU14).
+ */
+public class FileExamAttemptRepository implements ExamAttemptRepository {
+
+<span class="fc" id="L29">    private final String persistenceDir = &quot;intentos_pausados&quot;;</span>
+    private final QuestionBankRepository questionRepo;
+<span class="fc" id="L31">    private final Map&lt;StudentId, ExamAttempt&gt; activeMemory = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L33">    public FileExamAttemptRepository(QuestionBankRepository questionRepo) {</span>
+<span class="fc" id="L34">        this.questionRepo = questionRepo;</span>
+<span class="fc" id="L35">        File dir = new File(persistenceDir);</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (!dir.exists()) {</span>
+<span class="nc" id="L37">            dir.mkdirs();</span>
+        } else {
+<span class="fc" id="L39">            preloadPausedAttempts(dir);</span>
+        }
+<span class="fc" id="L41">    }</span>
+
+    private void preloadPausedAttempts(File dir) {
+<span class="pc bnc" id="L44" title="All 4 branches missed.">        File[] files = dir.listFiles((d, name) -&gt; name.startsWith(&quot;pausa_&quot;) &amp;&amp; name.endsWith(&quot;.txt&quot;));</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (files != null) {</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">            for (File file : files) {</span>
+<span class="nc" id="L47">                String name = file.getName();</span>
+<span class="nc" id="L48">                String id = name.substring(&quot;pausa_&quot;.length(), name.length() - 4);</span>
+<span class="nc" id="L49">                StudentId studentId = new StudentId(id);</span>
+<span class="nc" id="L50">                loadFromFile(file, studentId).ifPresent(attempt -&gt; activeMemory.put(studentId, attempt));</span>
+            }
+        }
+<span class="fc" id="L53">    }</span>
+
+    private File getFileForStudent(StudentId studentId) {
+<span class="fc" id="L56">        return new File(persistenceDir, &quot;pausa_&quot; + studentId.value() + &quot;.txt&quot;);</span>
+    }
+
+    private Optional&lt;ExamAttempt&gt; loadFromFile(File file, StudentId studentId) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (!file.exists()) {</span>
+<span class="fc" id="L61">            return Optional.empty();</span>
+        }
+<span class="fc" id="L63">        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {</span>
+<span class="fc" id="L64">            String isPausedStr = reader.readLine();</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">            if (isPausedStr == null) return Optional.empty();</span>
+            
+<span class="fc" id="L67">            boolean isPaused = Boolean.parseBoolean(isPausedStr);</span>
+
+<span class="fc" id="L69">            List&lt;Question&gt; questions = questionRepo.findAll();</span>
+<span class="fc" id="L70">            ExamAttempt attempt = new ExamAttempt(studentId, questions);</span>
+            
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if (isPaused) {</span>
+<span class="fc" id="L73">                attempt.setPaused(true);</span>
+            }
+
+            String line;
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                if (line.trim().isEmpty()) continue;</span>
+<span class="fc" id="L79">                String[] parts = line.split(&quot;\\|&quot;, 2);</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">                if (parts.length == 2) {</span>
+<span class="nc" id="L81">                    QuestionId qId = new QuestionId(parts[0]);</span>
+<span class="nc" id="L82">                    AnswerText answer = new AnswerText(parts[1]);</span>
+<span class="nc" id="L83">                    attempt.responder(qId, answer);</span>
+                }
+<span class="fc" id="L85">            }</span>
+            
+<span class="fc" id="L87">            return Optional.of(attempt);</span>
+<span class="nc" id="L88">        } catch (IOException e) {</span>
+<span class="nc" id="L89">            System.err.println(&quot;Error leyendo intento pausado: &quot; + e.getMessage());</span>
+<span class="nc" id="L90">            return Optional.empty();</span>
+        }
+    }
+
+    @Override
+    public Optional&lt;ExamAttempt&gt; findActiveByStudent(StudentId studentId) {
+<span class="fc" id="L96">        ExamAttempt memoryAttempt = activeMemory.get(studentId);</span>
+<span class="pc bpc" id="L97" title="1 of 4 branches missed.">        if (memoryAttempt != null &amp;&amp; !memoryAttempt.estaFinalizado()) {</span>
+<span class="fc" id="L98">            return Optional.of(memoryAttempt);</span>
+        }
+
+<span class="fc" id="L101">        Optional&lt;ExamAttempt&gt; fileAttempt = loadFromFile(getFileForStudent(studentId), studentId);</span>
+<span class="fc" id="L102">        fileAttempt.ifPresent(attempt -&gt; activeMemory.put(studentId, attempt));</span>
+<span class="fc" id="L103">        return fileAttempt;</span>
+    }
+
+    @Override
+    public void save(ExamAttempt attempt) {
+<span class="fc" id="L108">        activeMemory.put(attempt.getStudentId(), attempt);</span>
+<span class="fc" id="L109">        File file = getFileForStudent(attempt.getStudentId());</span>
+        
+        // Si el intento finalizó, ya no necesitamos guardarlo como pausado, borramos el archivo
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (attempt.estaFinalizado()) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (file.exists()) {</span>
+<span class="nc" id="L114">                file.delete();</span>
+            }
+<span class="nc" id="L116">            return;</span>
+        }
+        
+        // Si no está finalizado (activo o pausado), guardamos/actualizamos el archivo
+<span class="fc" id="L120">        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {</span>
+<span class="fc" id="L121">            writer.println(attempt.isPaused());</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">            for (Map.Entry&lt;QuestionId, AnswerText&gt; entry : attempt.getAnswers().entrySet()) {</span>
+<span class="fc" id="L123">                writer.println(entry.getKey().value() + &quot;|&quot; + entry.getValue().value());</span>
+<span class="fc" id="L124">            }</span>
+<span class="nc" id="L125">        } catch (IOException e) {</span>
+<span class="nc" id="L126">            System.err.println(&quot;Error guardando intento pausado: &quot; + e.getMessage());</span>
+<span class="fc" id="L127">        }</span>
+<span class="fc" id="L128">    }</span>
+
+    @Override
+    public List&lt;ExamAttempt&gt; findAll() {
+<span class="nc" id="L132">        return new ArrayList&lt;&gt;(activeMemory.values());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

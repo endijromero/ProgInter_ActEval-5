@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExamApplicationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.exam.application</a> &gt; <span class="el_source">ExamApplicationService.java</span></div><h1>ExamApplicationService.java</h1><pre class="source lang-java linenums">package com.exam.application;
+
+import com.exam.application.dto.DTOs.CalificacionDTO;
+import com.exam.application.dto.DTOs.ExamAttemptDTO;
+import com.exam.domain.model.ExamAttempt;
+import com.exam.domain.model.Question;
+import com.exam.domain.repository.Repositories.ExamAttemptRepository;
+import com.exam.domain.repository.Repositories.QuestionBankRepository;
+import com.exam.domain.service.AttemptManager;
+import com.exam.domain.service.ExportService;
+import com.exam.domain.service.GradingService;
+import com.exam.domain.vo.ValueObjects.AnswerText;
+import com.exam.domain.vo.ValueObjects.Calificacion;
+import com.exam.domain.vo.ValueObjects.QuestionId;
+import com.exam.domain.vo.ValueObjects.StudentId;
+import java.util.List;
+
+/**
+ * Application Service que orquesta los casos de uso.
+ */
+public class ExamApplicationService {
+  private final QuestionBankRepository questionRepo;
+  private final ExamAttemptRepository attemptRepo;
+  private final AttemptManager attemptManager;
+  private final GradingService gradingService;
+  private final ExportService exportService;
+
+  public ExamApplicationService(QuestionBankRepository qRepo, ExamAttemptRepository aRepo,
+<span class="fc" id="L29">      AttemptManager aManager, GradingService gService, ExportService exportService) {</span>
+<span class="fc" id="L30">    this.questionRepo = qRepo;</span>
+<span class="fc" id="L31">    this.attemptRepo = aRepo;</span>
+<span class="fc" id="L32">    this.attemptManager = aManager;</span>
+<span class="fc" id="L33">    this.gradingService = gService;</span>
+<span class="fc" id="L34">    this.exportService = exportService;</span>
+<span class="fc" id="L35">  }</span>
+
+  public ExamAttemptDTO iniciarExamen(StudentId studentId) {
+<span class="fc" id="L38">    attemptManager.verificarIntentoActivo(studentId);</span>
+
+    // Revisar si existe un intento pausado para este estudiante
+<span class="fc" id="L41">    java.util.Optional&lt;ExamAttempt&gt; activeOpt = attemptRepo.findActiveByStudent(studentId);</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">    if (activeOpt.isPresent()) {</span>
+<span class="nc" id="L43">      ExamAttempt active = activeOpt.get();</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">      if (active.isPaused()) {</span>
+<span class="nc" id="L45">        active.setPaused(false);</span>
+<span class="nc" id="L46">        attemptRepo.save(active);</span>
+<span class="nc" id="L47">        return new ExamAttemptDTO(studentId, active.getQuestions(), active.getAnswers());</span>
+      }
+    }
+
+<span class="fc" id="L51">    List&lt;Question&gt; questions = questionRepo.findAll();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    if (questions.isEmpty()) {</span>
+<span class="fc" id="L53">      throw new IllegalStateException(&quot;El banco de preguntas está vacío.&quot;);</span>
+    }
+<span class="fc bfc" id="L55" title="All 2 branches covered.">    if (questions.size() &gt; 50) {</span>
+<span class="fc" id="L56">      throw new IllegalStateException(&quot;El banco de preguntas excede el límite máximo permitido&quot;);</span>
+    }
+
+<span class="fc" id="L59">    ExamAttempt attempt = new ExamAttempt(studentId, questions);</span>
+<span class="fc" id="L60">    attemptRepo.save(attempt); // Persiste el inicio</span>
+
+<span class="fc" id="L62">    return new ExamAttemptDTO(studentId, questions, attempt.getAnswers());</span>
+  }
+
+  public void pausarExamen(StudentId studentId) {
+<span class="fc" id="L66">    ExamAttempt attempt = attemptRepo.findActiveByStudent(studentId)</span>
+<span class="pc" id="L67">        .orElseThrow(() -&gt; new IllegalStateException(&quot;No se encontró intento activo.&quot;));</span>
+
+<span class="fc" id="L69">    attempt.setPaused(true);</span>
+<span class="fc" id="L70">    attemptRepo.save(attempt);</span>
+<span class="fc" id="L71">  }</span>
+
+  public void responderPregunta(StudentId studentId, QuestionId qId, AnswerText answer) {
+<span class="fc" id="L74">    ExamAttempt attempt = attemptRepo.findActiveByStudent(studentId)</span>
+<span class="pc" id="L75">        .orElseThrow(() -&gt; new IllegalStateException(&quot;No se encontró intento activo.&quot;));</span>
+
+<span class="fc" id="L77">    attempt.responder(qId, answer);</span>
+<span class="fc" id="L78">    attemptRepo.save(attempt);</span>
+<span class="fc" id="L79">  }</span>
+
+  public CalificacionDTO finalizarExamen(StudentId studentId) {
+<span class="fc" id="L82">    ExamAttempt attempt = attemptRepo.findActiveByStudent(studentId)</span>
+<span class="pc" id="L83">        .orElseThrow(() -&gt; new IllegalStateException(&quot;No se encontró intento activo.&quot;));</span>
+
+<span class="fc" id="L85">    Calificacion calificacion = gradingService.calificar(attempt);</span>
+<span class="fc" id="L86">    attempt.finalizar(calificacion);</span>
+<span class="fc" id="L87">    attemptRepo.save(attempt); // Persiste el resultado</span>
+
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">    if (exportService != null) {</span>
+<span class="fc" id="L90">      exportService.exportResult(studentId, calificacion);</span>
+    }
+
+<span class="fc" id="L93">    return new CalificacionDTO(calificacion.puntaje(), calificacion.total());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

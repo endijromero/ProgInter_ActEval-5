@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MainSwing.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.exam</a> &gt; <span class="el_source">MainSwing.java</span></div><h1>MainSwing.java</h1><pre class="source lang-java linenums">package com.exam;
+
+import com.exam.application.ExamApplicationService;
+import com.exam.domain.repository.Repositories.ExamAttemptRepository;
+import com.exam.domain.repository.Repositories.QuestionBankRepository;
+import com.exam.domain.service.AttemptManager;
+import com.exam.domain.service.GradingService;
+import com.exam.infrastructure.CsvQuestionBankRepository;
+import com.exam.infrastructure.InMemoryExamAttemptRepository;
+import com.exam.presentation.SwingUI;
+
+import javax.swing.SwingUtilities;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+/**
+ * Nueva clase Main configurada para ejecutar la interfaz gráfica basada en
+ * Swing.
+ * Realiza la inyección manual de dependencias y carga el caso de uso central.
+ */
+<span class="nc" id="L22">public class MainSwing {</span>
+
+  public static void main(String[] args) {
+<span class="nc" id="L25">    String csvPath = &quot;banco_preguntas_test.csv&quot;;</span>
+<span class="nc" id="L26">    generarCsvDePrueba(csvPath);</span>
+
+    // 1. Inyección de Dependencias (Capa de Infraestructura)
+<span class="nc" id="L29">    QuestionBankRepository questionRepo = new CsvQuestionBankRepository(csvPath);</span>
+<span class="nc" id="L30">    ExamAttemptRepository attemptRepo = new InMemoryExamAttemptRepository();</span>
+
+    // 2. Servicios de Dominio
+<span class="nc" id="L33">    AttemptManager attemptManager = new AttemptManager(attemptRepo);</span>
+<span class="nc" id="L34">    GradingService gradingService = new GradingService();</span>
+<span class="nc" id="L35">    com.exam.domain.service.ExportService exportService = new com.exam.infrastructure.TxtExportService(&quot;calificaciones.txt&quot;);</span>
+
+    // 3. Casos de Uso (Application Service)
+<span class="nc" id="L38">    ExamApplicationService appService = new ExamApplicationService(</span>
+        questionRepo, attemptRepo, attemptManager, gradingService, exportService);
+
+    // 4. Lanzamiento asíncrono seguro de la interfaz gráfica Swing
+<span class="nc" id="L42">    SwingUtilities.invokeLater(() -&gt; {</span>
+      try {
+        // Para darle un aspecto moderno nativo al sistema operativo
+<span class="nc" id="L45">        javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());</span>
+<span class="nc" id="L46">      } catch (Exception e) {</span>
+<span class="nc" id="L47">        e.printStackTrace();</span>
+<span class="nc" id="L48">      }</span>
+
+<span class="nc" id="L50">      SwingUI ui = new SwingUI(appService);</span>
+<span class="nc" id="L51">      ui.start();</span>
+<span class="nc" id="L52">    });</span>
+<span class="nc" id="L53">  }</span>
+
+  private static void generarCsvDePrueba(String path) {
+<span class="nc" id="L56">    try (PrintWriter writer = new PrintWriter(new FileWriter(path))) {</span>
+<span class="nc" id="L57">      writer.println(&quot;TIPO;ENUNCIADO;OPCIONES;RESPUESTAS_CORRECTAS&quot;);</span>
+<span class="nc" id="L58">      writer.println(&quot;SC;¿Cuál es la capital de Colombia?;Bogotá,Lima,Quito;Bogotá&quot;);</span>
+<span class="nc" id="L59">      writer.println(&quot;TF;Java es un lenguaje de programación orientado a objetos;;V&quot;);</span>
+<span class="nc" id="L60">      writer.println(</span>
+          &quot;FB;El principio SOLID que dicta que una clase debe tener una sola razón para cambiar es el principio de _______;;responsabilidad unica&quot;);
+<span class="nc" id="L62">      writer.println(</span>
+          &quot;MC;¿Cuáles son lenguajes de programación tipados estáticamente?;Java,Python,C++,JavaScript;Java,C++&quot;);
+<span class="nc" id="L64">    } catch (IOException e) {</span>
+<span class="nc" id="L65">      System.err.println(&quot;Error al crear el CSV de prueba: &quot; + e.getMessage());</span>
+<span class="nc" id="L66">    }</span>
+<span class="nc" id="L67">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

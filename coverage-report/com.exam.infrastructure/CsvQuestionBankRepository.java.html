@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CsvQuestionBankRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.exam.infrastructure</a> &gt; <span class="el_source">CsvQuestionBankRepository.java</span></div><h1>CsvQuestionBankRepository.java</h1><pre class="source lang-java linenums">package com.exam.infrastructure;
+
+import com.exam.domain.model.Question;
+import com.exam.domain.model.QuestionTypes;
+import com.exam.domain.repository.Repositories.QuestionBankRepository;
+import com.exam.domain.vo.ValueObjects.AnswerText;
+import com.exam.domain.vo.ValueObjects.QuestionId;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Adaptador de infraestructura para cargar las preguntas desde un archivo CSV.
+ */
+public class CsvQuestionBankRepository implements QuestionBankRepository {
+  private final String filePath;
+
+<span class="fc" id="L21">  public CsvQuestionBankRepository(String filePath) {</span>
+<span class="fc" id="L22">    this.filePath = filePath;</span>
+<span class="fc" id="L23">  }</span>
+
+  @Override
+  public List&lt;Question&gt; findAll() {
+<span class="fc" id="L27">    List&lt;Question&gt; questions = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L29">    try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {</span>
+      String line;
+<span class="fc" id="L31">      int lineNum = 0;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">      while ((line = br.readLine()) != null) {</span>
+<span class="fc" id="L33">        lineNum++;</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (lineNum == 1)</span>
+<span class="fc" id="L35">          continue; // Saltar cabecera</span>
+
+<span class="fc" id="L37">        String trimmedLine = line.trim();</span>
+<span class="fc bfc" id="L38" title="All 4 branches covered.">        if (trimmedLine.isEmpty() || trimmedLine.replace(&quot;;&quot;, &quot;&quot;).replace(&quot;,&quot;, &quot;&quot;).trim().isEmpty()) {</span>
+<span class="fc" id="L39">          continue; // Ignorar líneas vacías o sin texto útil</span>
+        }
+
+        try {
+<span class="fc" id="L43">          questions.add(parseQuestion(line, lineNum));</span>
+<span class="fc" id="L44">        } catch (Exception e) {</span>
+<span class="fc" id="L45">          System.err.println(&quot;Advertencia - Línea &quot; + lineNum + &quot; omitida: &quot; + e.getMessage());</span>
+<span class="fc" id="L46">        }</span>
+<span class="fc" id="L47">      }</span>
+<span class="fc" id="L48">    } catch (IOException e) {</span>
+<span class="fc" id="L49">      System.err.println(&quot;Error crítico de lectura del CSV: &quot; + e.getMessage());</span>
+<span class="fc" id="L50">    }</span>
+
+<span class="fc" id="L52">    return questions;</span>
+  }
+
+  private Question parseQuestion(String line, int idStr) {
+<span class="fc" id="L56">    String[] parts = line.split(&quot;;&quot;);</span>
+<span class="pc bpc" id="L57" title="5 of 6 branches missed.">    if (parts.length &lt; 4 &amp;&amp; !parts[0].equals(&quot;TF&quot;) &amp;&amp; !parts[0].equals(&quot;FB&quot;)) {</span>
+<span class="nc" id="L58">      throw new IllegalArgumentException(&quot;Datos insuficientes en la fila.&quot;);</span>
+    }
+
+<span class="fc" id="L61">    QuestionId id = new QuestionId(String.valueOf(idStr));</span>
+<span class="fc" id="L62">    String type = parts[0];</span>
+<span class="fc" id="L63">    String text = parts[1];</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">    String options = parts.length &gt; 2 ? parts[2] : &quot;&quot;;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">    AnswerText correct = new AnswerText(parts.length &gt; 3 ? parts[3] : &quot;&quot;);</span>
+
+<span class="pc bpc" id="L67" title="2 of 5 branches missed.">    return switch (type) {</span>
+<span class="fc" id="L68">      case &quot;SC&quot; -&gt; new QuestionTypes.SingleChoiceQuestion(id, text, Arrays.asList(options.split(&quot;,&quot;)), correct);</span>
+<span class="nc" id="L69">      case &quot;MC&quot; -&gt; new QuestionTypes.MultipleChoiceQuestion(id, text, Arrays.asList(options.split(&quot;,&quot;)), correct);</span>
+<span class="fc" id="L70">      case &quot;TF&quot; -&gt; new QuestionTypes.TrueFalseQuestion(id, text, correct);</span>
+<span class="nc" id="L71">      case &quot;FB&quot; -&gt; new QuestionTypes.FillBlankQuestion(id, text, correct);</span>
+<span class="fc" id="L72">      default -&gt; throw new IllegalArgumentException(&quot;Tipo de pregunta desconocido: &quot; + type);</span>
+    };
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

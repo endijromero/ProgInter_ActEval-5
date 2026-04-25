@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConsoleUI.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.exam.presentation</a> &gt; <span class="el_source">ConsoleUI.java</span></div><h1>ConsoleUI.java</h1><pre class="source lang-java linenums">package com.exam.presentation;
+
+import com.exam.application.ExamApplicationService;
+import com.exam.application.StatsApplicationService;
+import com.exam.application.dto.DTOs.CalificacionDTO;
+import com.exam.application.dto.DTOs.ExamAttemptDTO;
+import com.exam.domain.model.Question;
+import com.exam.domain.vo.ValueObjects.AnswerText;
+import com.exam.domain.vo.ValueObjects.StudentId;
+import java.util.Scanner;
+
+/**
+ * Capa de Presentación: interactúa con el usuario y traslada peticiones al
+ * Application Service.
+ */
+public class ConsoleUI {
+  private final ExamApplicationService service;
+  private final StatsApplicationService statsService;
+  private final Scanner scanner;
+
+<span class="fc" id="L21">  public ConsoleUI(ExamApplicationService service, StatsApplicationService statsService) {</span>
+<span class="fc" id="L22">    this.service = service;</span>
+<span class="fc" id="L23">    this.statsService = statsService;</span>
+<span class="fc" id="L24">    this.scanner = new Scanner(System.in);</span>
+<span class="fc" id="L25">  }</span>
+
+  public void start() {
+<span class="fc" id="L28">    String ansiCyan = &quot;\u001B[36m&quot;;</span>
+<span class="fc" id="L29">    String ansiGreen = &quot;\u001B[32m&quot;;</span>
+<span class="fc" id="L30">    String ansiRed = &quot;\u001B[31m&quot;;</span>
+<span class="fc" id="L31">    String ansiReset = &quot;\u001B[0m&quot;;</span>
+<span class="fc" id="L32">    String ansiYellow = &quot;\u001B[33m&quot;;</span>
+
+<span class="fc" id="L34">    System.out.println(ansiCyan + &quot;╔═══════════════════════════════════════════════════════╗&quot; + ansiReset);</span>
+<span class="fc" id="L35">    System.out.println(ansiCyan + &quot;║         UNIVERSIDAD - SISTEMA DE EVALUACIÓN           ║&quot; + ansiReset);</span>
+<span class="fc" id="L36">    System.out.println(ansiCyan + &quot;║            (DDD &amp; CLEAN ARCHITECTURE)                 ║&quot; + ansiReset);</span>
+<span class="fc" id="L37">    System.out.println(ansiCyan + &quot;╚═══════════════════════════════════════════════════════╝&quot; + ansiReset);</span>
+<span class="fc" id="L38">    System.out.println(ansiGreen + &quot;¡Bienvenido a la plataforma de exámenes institucionales!&quot; + ansiReset);</span>
+
+    while (true) {
+<span class="fc" id="L41">      System.out.println(&quot;\nSeleccione su perfil:&quot;);</span>
+<span class="fc" id="L42">      System.out.println(&quot;(1) Soy Estudiante&quot;);</span>
+<span class="fc" id="L43">      System.out.println(&quot;(2) Soy Docente&quot;);</span>
+<span class="fc" id="L44">      System.out.print(&quot;Opción: &quot;);</span>
+<span class="fc" id="L45">      String opcion = scanner.nextLine().trim();</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">      if (&quot;1&quot;.equals(opcion)) {</span>
+<span class="fc" id="L48">        runStudentFlow(ansiCyan, ansiGreen, ansiRed, ansiReset, ansiYellow);</span>
+<span class="fc" id="L49">        break;</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">      } else if (&quot;2&quot;.equals(opcion)) {</span>
+<span class="fc" id="L51">        runTeacherFlow(ansiRed, ansiYellow, ansiGreen, ansiReset);</span>
+<span class="fc" id="L52">        break;</span>
+      } else {
+<span class="fc" id="L54">        System.out.println(ansiRed + &quot;Opción inválida. Intente nuevamente.&quot; + ansiReset);</span>
+      }
+<span class="fc" id="L56">    }</span>
+<span class="fc" id="L57">  }</span>
+
+  private void runTeacherFlow(String ansiRed, String ansiYellow, String ansiGreen, String ansiReset) {
+<span class="fc" id="L60">    System.out.print(&quot;\nIngrese el PIN de Docente: &quot;);</span>
+<span class="fc" id="L61">    String pin = scanner.nextLine().trim();</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">    if (&quot;1234&quot;.equals(pin)) {</span>
+<span class="fc" id="L63">        System.out.println(ansiGreen + &quot;\nAcceso concedido.&quot; + ansiReset);</span>
+<span class="fc" id="L64">        System.out.println(statsService.getGlobalStatistics());</span>
+    } else {
+<span class="fc" id="L66">        System.out.println(ansiRed + &quot;\n[ERROR]: PIN incorrecto. Acceso denegado.&quot; + ansiReset);</span>
+    }
+<span class="fc" id="L68">  }</span>
+
+  private void runStudentFlow(String ansiCyan, String ansiGreen, String ansiRed, String ansiReset, String ansiYellow) {
+<span class="fc" id="L71">    System.out.print(&quot;\nIngrese su ID de estudiante: &quot;);</span>
+<span class="fc" id="L72">    StudentId studentId = new StudentId(scanner.nextLine());</span>
+
+    try {
+<span class="fc" id="L75">      ExamAttemptDTO attempt = service.iniciarExamen(studentId);</span>
+<span class="fc" id="L76">      long startTime = System.currentTimeMillis();</span>
+<span class="fc" id="L77">      System.out.println(&quot;\n--- EXAMEN INICIADO ---&quot;);</span>
+
+<span class="fc" id="L79">      int count = 1;</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">      for (Question q : attempt.questions()) {</span>
+<span class="pc bpc" id="L81" title="2 of 4 branches missed.">        if (attempt.answers() != null &amp;&amp; attempt.answers().containsKey(q.getId())) {</span>
+<span class="nc" id="L82">          count++;</span>
+<span class="nc" id="L83">          continue; // Saltar pregunta ya respondida</span>
+        }
+
+<span class="fc" id="L86">        System.out.println(&quot;\nPregunta &quot; + count++ + &quot; de &quot; + attempt.questions().size());</span>
+<span class="fc" id="L87">        q.displayFormat();</span>
+
+<span class="fc" id="L89">        AnswerText answer = null;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        while (answer == null) {</span>
+<span class="fc" id="L91">          System.out.print(&quot;Su respuesta (escriba PAUSAR para detener): &quot;);</span>
+<span class="fc" id="L92">          String input = scanner.nextLine().trim();</span>
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">          if (&quot;PAUSAR&quot;.equalsIgnoreCase(input)) {</span>
+<span class="fc" id="L95">            service.pausarExamen(studentId);</span>
+<span class="fc" id="L96">            System.out.println(ansiYellow + &quot;\nExamen pausado con éxito. Puede retomar su intento ingresando de nuevo su ID de estudiante.&quot; + ansiReset);</span>
+<span class="fc" id="L97">            return; // Termina la ejecución</span>
+          }
+
+          try {
+<span class="fc" id="L101">            answer = new AnswerText(input);</span>
+<span class="fc" id="L102">          } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L103">            System.out.println(ansiRed + &quot;[ERROR]: &quot; + e.getMessage() + ansiReset);</span>
+<span class="fc" id="L104">          }</span>
+<span class="fc" id="L105">        }</span>
+
+<span class="fc" id="L107">        service.responderPregunta(studentId, q.getId(), answer);</span>
+<span class="fc" id="L108">      }</span>
+
+<span class="fc" id="L110">      CalificacionDTO resultado = service.finalizarExamen(studentId);</span>
+<span class="fc" id="L111">      long endTime = System.currentTimeMillis();</span>
+<span class="fc" id="L112">      long durationInSeconds = (endTime - startTime) / 1000;</span>
+
+<span class="fc" id="L114">      System.out.println(&quot;\n=== RESULTADOS ===&quot;);</span>
+<span class="fc" id="L115">      System.out.println(&quot;Puntuación Final: &quot; + resultado.puntaje() + &quot; / &quot; + resultado.total());</span>
+<span class="fc" id="L116">      System.out.println(&quot;Tiempo total del intento: &quot; + durationInSeconds + &quot; segundos&quot;);</span>
+<span class="fc" id="L117">      double porcentaje = ((double) resultado.puntaje() / resultado.total()) * 100;</span>
+<span class="fc" id="L118">      System.out.println(&quot;Porcentaje de acierto: &quot; + porcentaje + &quot;%&quot;);</span>
+
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">      if (porcentaje &gt;= 60.0) {</span>
+<span class="fc" id="L121">        System.out.println(ansiGreen + &quot;Estado: APROBADO&quot; + ansiReset);</span>
+      } else {
+<span class="nc" id="L123">        System.out.println(ansiRed + &quot;Estado: REPROBADO&quot; + ansiReset);</span>
+      }
+
+<span class="fc" id="L126">      System.out.println(ansiYellow + &quot;\n¡Gracias por utilizar nuestra plataforma de evaluación! Le deseamos mucho éxito.&quot; + ansiReset);</span>
+
+<span class="fc" id="L128">    } catch (IllegalStateException | IllegalArgumentException e) {</span>
+<span class="fc" id="L129">      System.out.println(&quot;\n[ERROR]: &quot; + e.getMessage());</span>
+<span class="fc" id="L130">    }</span>
+<span class="fc" id="L131">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

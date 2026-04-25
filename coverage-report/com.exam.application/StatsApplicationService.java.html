@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StatsApplicationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCo Coverage Report</a> &gt; <a href="index.source.html" class="el_package">com.exam.application</a> &gt; <span class="el_source">StatsApplicationService.java</span></div><h1>StatsApplicationService.java</h1><pre class="source lang-java linenums">package com.exam.application;
+
+import com.exam.domain.model.ExamAttempt;
+import com.exam.domain.repository.Repositories.ExamAttemptRepository;
+import com.exam.domain.service.GradingService;
+import com.exam.domain.vo.ValueObjects.Calificacion;
+import java.util.List;
+
+/**
+ * Servicio de Aplicación para obtener estadísticas del sistema (HU14).
+ */
+public class StatsApplicationService {
+    private final ExamAttemptRepository attemptRepository;
+    private final GradingService gradingService;
+
+<span class="fc" id="L16">    public StatsApplicationService(ExamAttemptRepository attemptRepository, GradingService gradingService) {</span>
+<span class="fc" id="L17">        this.attemptRepository = attemptRepository;</span>
+<span class="fc" id="L18">        this.gradingService = gradingService;</span>
+<span class="fc" id="L19">    }</span>
+
+    public String getGlobalStatistics() {
+<span class="fc" id="L22">        List&lt;ExamAttempt&gt; attempts = attemptRepository.findAll();</span>
+<span class="fc" id="L23">        int total = attempts.size();</span>
+<span class="fc" id="L24">        int abiertos = 0;</span>
+<span class="fc" id="L25">        int guardados = 0;</span>
+<span class="fc" id="L26">        int cerrados = 0;</span>
+<span class="fc" id="L27">        double sumPercentages = 0.0;</span>
+
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        for (ExamAttempt attempt : attempts) {</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">            if (attempt.estaFinalizado()) {</span>
+<span class="nc" id="L31">                cerrados++;</span>
+<span class="nc" id="L32">                Calificacion cal = gradingService.calificar(attempt);</span>
+<span class="nc" id="L33">                sumPercentages += ((double) cal.puntaje() / cal.total()) * 100;</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">            } else if (attempt.isPaused()) {</span>
+<span class="nc" id="L35">                guardados++;</span>
+            } else {
+<span class="nc" id="L37">                abiertos++;</span>
+            }
+<span class="nc" id="L39">        }</span>
+
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        double average = cerrados &gt; 0 ? sumPercentages / cerrados : 0.0;</span>
+
+<span class="fc" id="L43">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L44">        sb.append(&quot;--- ESTADÍSTICAS GLOBALES ---\n&quot;);</span>
+<span class="fc" id="L45">        sb.append(&quot;Total de intentos registrados: &quot;).append(total).append(&quot;\n&quot;);</span>
+<span class="fc" id="L46">        sb.append(&quot; - Abiertos (en curso): &quot;).append(abiertos).append(&quot;\n&quot;);</span>
+<span class="fc" id="L47">        sb.append(&quot; - Guardados (pausados): &quot;).append(guardados).append(&quot;\n&quot;);</span>
+<span class="fc" id="L48">        sb.append(&quot; - Cerrados (finalizados): &quot;).append(cerrados).append(&quot;\n&quot;);</span>
+<span class="fc" id="L49">        sb.append(String.format(&quot;Grado de asertividad promedio (Cerrados): %.2f%%\n&quot;, average));</span>
+<span class="fc" id="L50">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

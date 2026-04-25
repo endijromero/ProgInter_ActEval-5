@@ -1,0 +1,13 @@
+test/com/exam/domain/service/AttemptManagerTest.java
+test/com/exam/domain/service/GradingServiceTest.java
+test/com/exam/domain/vo/ValueObjectsTest.java
+test/com/exam/domain/model/QuestionTypesTest.java
+test/com/exam/domain/model/ExamAttemptTest.java
+test/com/exam/presentation/SwingUIE2ETest.java
+test/com/exam/presentation/ConsoleUIE2ETest.java
+test/com/exam/application/ExamApplicationServiceTest.java
+test/com/exam/application/dto/DTOsTest.java
+test/com/exam/infrastructure/InMemoryExamAttemptRepositoryTest.java
+test/com/exam/infrastructure/FileExamAttemptRepositoryTest.java
+test/com/exam/infrastructure/TxtExportServiceTest.java
+test/com/exam/infrastructure/CsvQuestionBankRepositoryTest.java

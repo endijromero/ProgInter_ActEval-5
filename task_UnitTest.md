@@ -1,0 +1,13 @@
+- `[/]` Create run_tests.sh script
+- `[ ]` Setup test directory structure
+- `[ ]` Write Unit Tests
+  - `[ ]` ValueObjectsTest.java (HU03, HU07)
+  - `[ ]` CsvQuestionBankRepositoryTest.java (HU08)
+  - `[ ]` ExamApplicationServiceTest.java (HU09)
+  - `[ ]` ExamAttemptTest.java (HU13)
+  - `[ ]` GradingServiceTest.java (HU10 logic)
+- `[ ]` Write E2E Tests
+  - `[ ]` ConsoleUIE2ETest.java (HU02, HU10, HU12, HU14)
+  - `[ ]` SwingUIE2ETest.java (HU15)
+- `[ ]` Run test script and generate JaCoCo coverage report
+- `[ ]` Verify coverage is >= 80%

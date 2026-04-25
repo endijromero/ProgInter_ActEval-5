@@ -1,4 +1,5 @@
 src/com/exam/domain/service/AttemptManager.java
+src/com/exam/domain/service/ExportService.java
 src/com/exam/domain/service/GradingService.java
 src/com/exam/domain/vo/ValueObjects.java
 src/com/exam/domain/model/ExamAttempt.java
@@ -11,7 +12,10 @@ src/com/exam/presentation/ConsoleUI.java
 src/com/exam/presentation/SwingUI.java
 src/com/exam/application/ExamApplicationService.java
 src/com/exam/application/dto/DTOs.java
+src/com/exam/application/StatsApplicationService.java
 src/com/exam/MainSwing.java
+src/com/exam/infrastructure/FileExamAttemptRepository.java
 src/com/exam/infrastructure/InMemoryExamAttemptRepository.java
 src/com/exam/infrastructure/CsvQuestionBankRepository.java
+src/com/exam/infrastructure/TxtExportService.java
 src/com/exam/Main.java
