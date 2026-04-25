@@ -14,24 +14,41 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
  * Repositorio de intentos que guarda el estado en un archivo temporal
- * para poder recuperar exámenes pausados (HU13).
+ * para poder recuperar exámenes pausados (HU13) y en memoria (HU14).
  */
 public class FileExamAttemptRepository implements ExamAttemptRepository {
 
     private final String persistenceDir = "intentos_pausados";
     private final QuestionBankRepository questionRepo;
+    private final Map<StudentId, ExamAttempt> activeMemory = new HashMap<>();
 
     public FileExamAttemptRepository(QuestionBankRepository questionRepo) {
         this.questionRepo = questionRepo;
         File dir = new File(persistenceDir);
         if (!dir.exists()) {
             dir.mkdirs();
+        } else {
+            preloadPausedAttempts(dir);
+        }
+    }
+
+    private void preloadPausedAttempts(File dir) {
+        File[] files = dir.listFiles((d, name) -> name.startsWith("pausa_") && name.endsWith(".txt"));
+        if (files != null) {
+            for (File file : files) {
+                String name = file.getName();
+                String id = name.substring("pausa_".length(), name.length() - 4);
+                StudentId studentId = new StudentId(id);
+                loadFromFile(file, studentId).ifPresent(attempt -> activeMemory.put(studentId, attempt));
+            }
         }
     }
 
@@ -39,13 +56,10 @@ public class FileExamAttemptRepository implements ExamAttemptRepository {
         return new File(persistenceDir, "pausa_" + studentId.value() + ".txt");
     }
 
-    @Override
-    public Optional<ExamAttempt> findActiveByStudent(StudentId studentId) {
-        File file = getFileForStudent(studentId);
+    private Optional<ExamAttempt> loadFromFile(File file, StudentId studentId) {
         if (!file.exists()) {
             return Optional.empty();
         }
-
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String isPausedStr = reader.readLine();
             if (isPausedStr == null) return Optional.empty();
@@ -57,9 +71,6 @@ public class FileExamAttemptRepository implements ExamAttemptRepository {
             
             if (isPaused) {
                 attempt.setPaused(true);
-            } else {
-                // Si existe el archivo pero no está pausado, podría estar finalizado
-                // pero este archivo solo guarda pausados. Lo consideramos pausado por defecto si existe.
             }
 
             String line;
@@ -81,7 +92,20 @@ public class FileExamAttemptRepository implements ExamAttemptRepository {
     }
 
     @Override
+    public Optional<ExamAttempt> findActiveByStudent(StudentId studentId) {
+        ExamAttempt memoryAttempt = activeMemory.get(studentId);
+        if (memoryAttempt != null && !memoryAttempt.estaFinalizado()) {
+            return Optional.of(memoryAttempt);
+        }
+
+        Optional<ExamAttempt> fileAttempt = loadFromFile(getFileForStudent(studentId), studentId);
+        fileAttempt.ifPresent(attempt -> activeMemory.put(studentId, attempt));
+        return fileAttempt;
+    }
+
+    @Override
     public void save(ExamAttempt attempt) {
+        activeMemory.put(attempt.getStudentId(), attempt);
         File file = getFileForStudent(attempt.getStudentId());
         
         // Si el intento finalizó, ya no necesitamos guardarlo como pausado, borramos el archivo
@@ -101,5 +125,10 @@ public class FileExamAttemptRepository implements ExamAttemptRepository {
         } catch (IOException e) {
             System.err.println("Error guardando intento pausado: " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<ExamAttempt> findAll() {
+        return new ArrayList<>(activeMemory.values());
     }
 }

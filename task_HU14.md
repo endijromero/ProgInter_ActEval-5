@@ -1,0 +1,9 @@
+- `[x]` 1. Create `task.md` artifact.
+- `[x]` 2. Update `ExamAttemptRepository` interfaces (`domain/repository/ExamAttemptRepository.java` and `domain/repository/Repositories.java`) to include `List<ExamAttempt> findAll()`.
+- `[x]` 3. Implement `findAll()` in `InMemoryExamAttemptRepository.java`.
+- `[x]` 4. Update `FileExamAttemptRepository.java` to maintain `activeMemory` map and implement `findAll()`.
+- `[x]` 5. Create `StatsApplicationService.java` with logic to aggregate attempt statistics.
+- `[x]` 6. Update `ConsoleUI.java` to include a start menu with the teacher router and hardcoded PIN logic.
+- `[x]` 7. Update `Main.java` to initialize `StatsApplicationService` and pass it to `ConsoleUI`.
+- `[x]` 8. Compile and test locally.
+- `[x]` 9. Create `walkthrough.md` artifact.

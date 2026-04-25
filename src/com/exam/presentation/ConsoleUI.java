@@ -1,6 +1,7 @@
 package com.exam.presentation;
 
 import com.exam.application.ExamApplicationService;
+import com.exam.application.StatsApplicationService;
 import com.exam.application.dto.DTOs.CalificacionDTO;
 import com.exam.application.dto.DTOs.ExamAttemptDTO;
 import com.exam.domain.model.Question;
@@ -14,10 +15,12 @@ import java.util.Scanner;
  */
 public class ConsoleUI {
   private final ExamApplicationService service;
+  private final StatsApplicationService statsService;
   private final Scanner scanner;
 
-  public ConsoleUI(ExamApplicationService service) {
+  public ConsoleUI(ExamApplicationService service, StatsApplicationService statsService) {
     this.service = service;
+    this.statsService = statsService;
     this.scanner = new Scanner(System.in);
   }
 
@@ -34,6 +37,37 @@ public class ConsoleUI {
     System.out.println(ansiCyan + "╚═══════════════════════════════════════════════════════╝" + ansiReset);
     System.out.println(ansiGreen + "¡Bienvenido a la plataforma de exámenes institucionales!" + ansiReset);
 
+    while (true) {
+      System.out.println("\nSeleccione su perfil:");
+      System.out.println("(1) Soy Estudiante");
+      System.out.println("(2) Soy Docente");
+      System.out.print("Opción: ");
+      String opcion = scanner.nextLine().trim();
+
+      if ("1".equals(opcion)) {
+        runStudentFlow(ansiCyan, ansiGreen, ansiRed, ansiReset, ansiYellow);
+        break;
+      } else if ("2".equals(opcion)) {
+        runTeacherFlow(ansiRed, ansiYellow, ansiGreen, ansiReset);
+        break;
+      } else {
+        System.out.println(ansiRed + "Opción inválida. Intente nuevamente." + ansiReset);
+      }
+    }
+  }
+
+  private void runTeacherFlow(String ansiRed, String ansiYellow, String ansiGreen, String ansiReset) {
+    System.out.print("\nIngrese el PIN de Docente: ");
+    String pin = scanner.nextLine().trim();
+    if ("1234".equals(pin)) {
+        System.out.println(ansiGreen + "\nAcceso concedido." + ansiReset);
+        System.out.println(statsService.getGlobalStatistics());
+    } else {
+        System.out.println(ansiRed + "\n[ERROR]: PIN incorrecto. Acceso denegado." + ansiReset);
+    }
+  }
+
+  private void runStudentFlow(String ansiCyan, String ansiGreen, String ansiRed, String ansiReset, String ansiYellow) {
     System.out.print("\nIngrese su ID de estudiante: ");
     StudentId studentId = new StudentId(scanner.nextLine());
 
@@ -60,7 +94,7 @@ public class ConsoleUI {
           if ("PAUSAR".equalsIgnoreCase(input)) {
             service.pausarExamen(studentId);
             System.out.println(ansiYellow + "\nExamen pausado con éxito. Puede retomar su intento ingresando de nuevo su ID de estudiante." + ansiReset);
-            return; // Termina la ejecución de start()
+            return; // Termina la ejecución
           }
 
           try {

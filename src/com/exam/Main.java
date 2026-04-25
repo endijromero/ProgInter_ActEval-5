@@ -34,9 +34,11 @@ public class Main {
     // 3. Instanciación de la Capa de Aplicación
     ExamApplicationService appService = new ExamApplicationService(
         questionRepo, attemptRepo, attemptManager, gradingService, exportService);
+    com.exam.application.StatsApplicationService statsService = new com.exam.application.StatsApplicationService(
+        attemptRepo, gradingService);
 
     // 4. Instanciación e inicio de la Presentación
-    ConsoleUI ui = new ConsoleUI(appService);
+    ConsoleUI ui = new ConsoleUI(appService, statsService);
     ui.start();
   }
 

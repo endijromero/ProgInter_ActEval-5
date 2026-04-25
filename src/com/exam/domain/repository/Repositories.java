@@ -16,6 +16,8 @@ public class Repositories {
     Optional<ExamAttempt> findActiveByStudent(StudentId studentId);
 
     void save(ExamAttempt attempt);
+
+    List<ExamAttempt> findAll();
   }
 
   public interface QuestionBankRepository {

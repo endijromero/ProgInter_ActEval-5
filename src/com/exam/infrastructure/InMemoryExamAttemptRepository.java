@@ -3,7 +3,9 @@ package com.exam.infrastructure;
 import com.exam.domain.model.ExamAttempt;
 import com.exam.domain.repository.Repositories.ExamAttemptRepository;
 import com.exam.domain.vo.ValueObjects.StudentId;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,5 +27,10 @@ public class InMemoryExamAttemptRepository implements ExamAttemptRepository {
   @Override
   public void save(ExamAttempt attempt) {
     db.put(attempt.getStudentId(), attempt);
+  }
+
+  @Override
+  public List<ExamAttempt> findAll() {
+    return new ArrayList<>(db.values());
   }
 }
