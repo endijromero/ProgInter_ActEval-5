@@ -81,7 +81,7 @@ public class SwingUI extends JFrame {
 
   private void iniciarExamen(String studentIdStr) {
     if (studentIdStr == null || studentIdStr.trim().isEmpty()) {
-      JOptionPane.showMessageDialog(this, "El ID no puede estar vacío.", "Error", JOptionPane.ERROR_MESSAGE);
+      mostrarErrorGrafico("El ID no puede estar vacío.");
       return;
     }
 
@@ -91,7 +91,7 @@ public class SwingUI extends JFrame {
       currentQuestionIndex = 0;
       mostrarPreguntaActual();
     } catch (IllegalStateException | IllegalArgumentException ex) {
-      JOptionPane.showMessageDialog(this, ex.getMessage(), "Atención", JOptionPane.WARNING_MESSAGE);
+      mostrarErrorGrafico(ex.getMessage());
     }
   }
 
@@ -159,9 +159,12 @@ public class SwingUI extends JFrame {
       cardLayout.show(mainContainer, "LOGIN");
 
     } catch (Exception ex) {
-      JOptionPane.showMessageDialog(this, "Error al finalizar el examen: " + ex.getMessage(), "Error",
-          JOptionPane.ERROR_MESSAGE);
+      mostrarErrorGrafico("Error al finalizar el examen: " + ex.getMessage());
     }
+  }
+
+  private void mostrarErrorGrafico(String msg) {
+    JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
   }
 
   // ==========================================
