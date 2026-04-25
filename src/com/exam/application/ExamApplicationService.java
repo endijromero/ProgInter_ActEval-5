@@ -7,6 +7,7 @@ import com.exam.domain.model.Question;
 import com.exam.domain.repository.Repositories.ExamAttemptRepository;
 import com.exam.domain.repository.Repositories.QuestionBankRepository;
 import com.exam.domain.service.AttemptManager;
+import com.exam.domain.service.ExportService;
 import com.exam.domain.service.GradingService;
 import com.exam.domain.vo.ValueObjects.AnswerText;
 import com.exam.domain.vo.ValueObjects.Calificacion;
@@ -22,13 +23,15 @@ public class ExamApplicationService {
   private final ExamAttemptRepository attemptRepo;
   private final AttemptManager attemptManager;
   private final GradingService gradingService;
+  private final ExportService exportService;
 
   public ExamApplicationService(QuestionBankRepository qRepo, ExamAttemptRepository aRepo,
-      AttemptManager aManager, GradingService gService) {
+      AttemptManager aManager, GradingService gService, ExportService exportService) {
     this.questionRepo = qRepo;
     this.attemptRepo = aRepo;
     this.attemptManager = aManager;
     this.gradingService = gService;
+    this.exportService = exportService;
   }
 
   public ExamAttemptDTO iniciarExamen(StudentId studentId) {
@@ -63,6 +66,10 @@ public class ExamApplicationService {
     Calificacion calificacion = gradingService.calificar(attempt);
     attempt.finalizar(calificacion);
     attemptRepo.save(attempt); // Persiste el resultado
+
+    if (exportService != null) {
+      exportService.exportResult(studentId, calificacion);
+    }
 
     return new CalificacionDTO(calificacion.puntaje(), calificacion.total());
   }

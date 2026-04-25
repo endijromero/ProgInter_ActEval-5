@@ -29,10 +29,11 @@ public class Main {
     // 2. Instanciación de Servicios de Dominio
     AttemptManager attemptManager = new AttemptManager(attemptRepo);
     GradingService gradingService = new GradingService();
+    com.exam.domain.service.ExportService exportService = new com.exam.infrastructure.TxtExportService("calificaciones.txt");
 
     // 3. Instanciación de la Capa de Aplicación
     ExamApplicationService appService = new ExamApplicationService(
-        questionRepo, attemptRepo, attemptManager, gradingService);
+        questionRepo, attemptRepo, attemptManager, gradingService, exportService);
 
     // 4. Instanciación e inicio de la Presentación
     ConsoleUI ui = new ConsoleUI(appService);

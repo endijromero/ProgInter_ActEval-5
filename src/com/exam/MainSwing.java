@@ -32,10 +32,11 @@ public class MainSwing {
     // 2. Servicios de Dominio
     AttemptManager attemptManager = new AttemptManager(attemptRepo);
     GradingService gradingService = new GradingService();
+    com.exam.domain.service.ExportService exportService = new com.exam.infrastructure.TxtExportService("calificaciones.txt");
 
     // 3. Casos de Uso (Application Service)
     ExamApplicationService appService = new ExamApplicationService(
-        questionRepo, attemptRepo, attemptManager, gradingService);
+        questionRepo, attemptRepo, attemptManager, gradingService, exportService);
 
     // 4. Lanzamiento asíncrono seguro de la interfaz gráfica Swing
     SwingUtilities.invokeLater(() -> {
