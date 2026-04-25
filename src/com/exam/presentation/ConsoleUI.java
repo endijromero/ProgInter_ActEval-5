@@ -39,6 +39,7 @@ public class ConsoleUI {
 
     try {
       ExamAttemptDTO attempt = service.iniciarExamen(studentId);
+      long startTime = System.currentTimeMillis();
       System.out.println("\n--- EXAMEN INICIADO ---");
 
       int count = 1;
@@ -60,9 +61,12 @@ public class ConsoleUI {
       }
 
       CalificacionDTO resultado = service.finalizarExamen(studentId);
+      long endTime = System.currentTimeMillis();
+      long durationInSeconds = (endTime - startTime) / 1000;
 
       System.out.println("\n=== RESULTADOS ===");
       System.out.println("Puntuación Final: " + resultado.puntaje() + " / " + resultado.total());
+      System.out.println("Tiempo total del intento: " + durationInSeconds + " segundos");
       double porcentaje = ((double) resultado.puntaje() / resultado.total()) * 100;
       System.out.println("Porcentaje de acierto: " + porcentaje + "%");
 
